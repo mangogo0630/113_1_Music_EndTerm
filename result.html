@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<!-- head 部分保持不變 -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@900&display=swap">
+    <title>論文寫作測驗結果</title>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <style>
+        /* http://meyerweb.com/eric/tools/css/reset/ 
+   v2.0 | 20110126
+   License: none (public domain)
+*/
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: 'Noto Serif TC', Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    background-color: #000000;
+    overflow-x: hidden; /* 防止水平滾動 */
+}
+
+.home-btn {
+    position: fixed;
+    top: 20px;
+    left: 50%; /* 設置在中心 */
+    transform: translateX(155px); /* 390px/2 - 40px + 按鈕寬度的一半 */
+    cursor: pointer;
+    width: 60px;
+    height: 60px;
+    background: url('images/首頁.png') no-repeat center center;
+    background-size: contain;
+    border: none;
+    z-index: 1000;
+}
+
+.result-container {
+    width: 100%;
+    max-width: 390px; /* 手機寬度 */
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    background-image: url('images/星空背景.jpg');
+    background-size: cover;
+    background-position: center;
+    margin: 0 auto; /* 置中 */
+}
+
+.result-image {
+    width: 80%; /* 相對容器的寬度 */
+    max-width: 300px;
+    height: auto;
+    display: block;
+    margin: 20px auto;
+}
+
+.user-name {
+    font-size: 1.5rem; /* 使用相對單位 */
+    color: #ffffff;
+    font-weight: 900;
+    margin: 0px 0 20px 0; /* 增加底部間距 */
+    text-align: center;
+    width: 100%;
+    padding: 0 20px;
+}
+
+.result-content {
+    text-align: center;
+    color: #ffffff;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.result-content h3 {
+    font-size: 1.25rem;
+    margin-bottom: 20px;
+}
+
+.result-content p {
+    line-height: 1.8;
+    font-size: 1rem;
+    margin: 0 auto;
+    max-width: 300px;
+}
+
+.button-container {
+    bottom: 20px;
+    left: 0;
+    right: 0;
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-top: 4px;
+}
+
+/* 保持按鈕透明 */
+.download-image-btn,
+.download-music-btn {
+    cursor: pointer;
+    border: none;
+    padding: 0;
+    margin: 0;
+    background: transparent;
+    outline: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    height: 70px; /* 添加這行來控制按鈕高度 */
+}
+
+/* 單獨控制圖片大小 */
+.download-image-btn img,
+.download-music-btn img {
+    height: 100%; /* 讓圖片填滿按鈕高度 */
+    width: auto; /* 保持圖片比例 */
+}
+
+/* 媒體查詢，處理較大螢幕 */
+@media screen and (min-width: 391px) {
+    .result-container {
+        margin-top: 0; /* 移除上方間距 */
+        border-left: 1px solid rgba(255, 255, 255, 0.1); /* 可選：添加邊框 */
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    body::before,
+    body::after {
+        content: '';
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        width: calc((100% - 390px) / 2); /* 計算兩側黑色區域寬度 */
+        background-color: #000000;
+        z-index: -1;
+    }
+    
+    body::before {
+        left: 0;
+    }
+    
+    body::after {
+        right: 0;
+    }
+}
+.result-title {
+    color: #ffffff;
+    font-size: 2rem; /* 比原本大 */
+    font-weight: 900;
+    text-align: center;
+    margin: 20px 0 0 0; /* 增加上下間距 */
+    width: 100%;
+}
+    </style>
+</head>
+<body>
+    <button onclick="goHome()" class="home-btn"></button>
+
+    <div id="captureArea" class="result-container">
+        <h3 class="result-title">測驗結果</h3>
+        <img id="resultImage" class="result-image" alt="結果圖片">
+        <div class="user-name" id="userNameDisplay"></div>
+        <div class="result-content"></div>
+    </div>
+
+    <div class="button-container">
+        <button onclick="captureAndDownload()" class="download-image-btn">
+            <img src="images/下載圖片.png" alt="下載圖片">
+        </button>
+        <button onclick="downloadMusic()" class="download-music-btn">
+            <img src="images/領取專屬音樂.png" alt="領取專屬音樂">
+        </button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const userName = localStorage.getItem('userName') || '訪客';
+            const testScore = parseInt(localStorage.getItem('testScore')) || 0;
+            
+            const results = [
+                {
+                    minScore: 5,
+                    maxScore: 8,
+                    type: "消極型研究生",
+                    image: 'images/消極.png',
+                    music: 'images/mresult消極型.png',
+                    description: "你在論文寫作過程中似乎承受著較大的壓力。建議你可以尋求指導教授或同學的協助，適當調整心態和作息，相信透過適當的調適，你一定能順利完成論文！"
+                },
+                {
+                    minScore: 9,
+                    maxScore: 11,
+                    type: "佛系型研究生",
+                    image: 'images/佛系.png',
+                    music: 'path/to/your/music佛系型.mp3',
+                    description: "你對論文寫作保持著平穩的步調，雖然偶有壓力但仍能保持前進。繼續保持這樣的態度，同時也要記得給自己適當的休息和獎勵。"
+                },
+                {
+                    minScore: 12,
+                    maxScore: 15,
+                    type: "樂觀型研究生",
+                    image: 'images/樂觀.png',
+                    music: 'path/to/your/music樂觀型.mp3',
+                    description: "你在論文寫作過程中展現出很好的心態和執行力！你善於將壓力轉化為動力，也能夠有效管理時間。維持這份熱忱，相信你的論文之路會走得很順利。"
+                }
+            ];
+
+            function getResult(score) {
+                return results.find(result => 
+                    score >= result.minScore && score <= result.maxScore
+                ) || results[0];
+            }
+
+            const userResult = getResult(testScore);
+            
+            // 設置用戶名稱
+            document.getElementById('userNameDisplay').textContent = 
+                `${userName} `;
+
+            // 設置結果圖片
+            const resultImage = document.getElementById('resultImage');
+            resultImage.src = userResult.image;
+            resultImage.alt = userResult.type;
+
+            // 確保圖片載入
+            resultImage.onload = function() {
+                console.log('圖片載入成功');
+            };
+            resultImage.onerror = function() {
+                console.error('圖片載入失敗:', userResult.image);
+            };
+
+            // 顯示結果內容
+            document.querySelector('.result-content').innerHTML = `
+                <h3>你是：${userResult.type}</h3>
+                <p>${userResult.description}</p>
+            `;
+
+            // 設置下載音樂功能
+            window.downloadMusic = function() {
+                const link = document.createElement('a');
+                link.href = userResult.music;
+                link.download = `${userName}的專屬音樂.mp3`;
+                link.click();
+            };
+        });
+
+        async function captureAndDownload() {
+            const captureArea = document.getElementById('captureArea');
+            const userName = localStorage.getItem('userName') || '訪客';
+
+            try {
+                const canvas = await html2canvas(captureArea, {
+                    useCORS: true,
+                    scale: 2,
+                    backgroundColor: null
+                });
+
+                const link = document.createElement('a');
+                link.download = `${userName}的研究生類型分析.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            } catch (error) {
+                console.error('截圖失敗:', error);
+                alert('截圖生成失敗，請稍後再試');
+            }
+        }
+
+        function goHome() {
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

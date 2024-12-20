@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@900&display=swap">
+    <title>論文寫作測驗</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Noto Serif TC', Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: #000000;
+            min-height: 100vh;
+        }
+
+        .main-container {
+            width: min(100vh, 100vw);
+            height: min(100vh, 100vw);
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        .main-container.fade-in {
+            opacity: 1;
+        }
+
+        .background-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1;
+        }
+
+        /* 新增淡出覆蓋層樣式 */
+        .fade-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: black;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 1s ease;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        .fade-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .question-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 2;
+        }
+
+        .question-wrapper {
+            position: relative;
+            display: inline-block;
+            opacity: 1;
+            transition: opacity 1s ease;
+        }
+
+        .question-wrapper.fade-out {
+            opacity: 0;
+        }
+
+        .question-wrapper img {
+            max-width: 50%;
+            margin: auto;
+            height: auto;
+            display: block;
+        }
+
+        .next-button {
+            position: absolute;
+            right: -50px;
+            left: 35%;
+            top: 35%;
+            width: auto;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            transform: translate(0, 0);
+            transition: opacity 1s ease;
+        }
+
+        .next-button img {
+            display: block;
+            width: auto;
+            height: auto;
+        }
+
+        .answers-container {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 1s ease, visibility 1s ease;
+        }
+
+        .answers-container.fade-in {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .answer-option {
+            cursor: pointer;
+            transition: transform 0.3s ease, opacity 1s ease;
+        }
+
+        .answer-option.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .answer-option:hover {
+            transform: scale(1.05);
+        }
+
+        .answer-option img {
+            max-width: 50%;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <!-- 新增淡出覆蓋層 -->
+    <div class="fade-overlay"></div>
+
+    <div class="main-container">
+        <img src="images/鏡子-底圖.jpg" alt="背景" class="background-image">
+        <div class="overlay"></div>
+        <div class="question-content">
+            <div class="question-wrapper">
+                <img src="images/問題1.png" alt="問題1" class="question-image">
+                <button class="next-button" onclick="showAnswers()">
+                    <img src="images/next.png" alt="下一步">
+                </button>
+            </div>
+            <div class="answers-container">
+                <div class="answer-option" onclick="selectAnswer('optimistic', this)">
+                    <img src="images/回答1.png" alt="回答1">
+                </div>
+                <div class="answer-option" onclick="selectAnswer('zen', this)">
+                    <img src="images/回答2.png" alt="回答2">
+                </div>
+                <div class="answer-option" onclick="selectAnswer('pessimistic', this)">
+                    <img src="images/回答3.png" alt="回答3">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+    // 重置所有測驗相關的數據
+    localStorage.setItem('testScore', '0');
+    localStorage.removeItem('answerType');
+    
+    // 原有的淡入效果
+    setTimeout(() => {
+        const mainContainer = document.querySelector('.main-container');
+        mainContainer.classList.add('fade-in');
+    }, 100);
+});
+
+        function showAnswers() {
+            const questionWrapper = document.querySelector('.question-wrapper');
+            const answersContainer = document.querySelector('.answers-container');
+
+            questionWrapper.classList.add('fade-out');
+
+            setTimeout(() => {
+                questionWrapper.style.display = 'none';
+                answersContainer.classList.add('fade-in');
+            }, 1000);
+        }
+
+        function selectAnswer(type, element) {
+    // 設置第一題的分數
+    let score;
+    switch(type) {
+        case 'optimistic':
+            score = 3;
+            break;
+        case 'zen':
+            score = 2;
+            break;
+        case 'pessimistic':
+            score = 1;
+            break;
+    }
+    
+    // 初始化總分
+    localStorage.setItem('testScore', score);
+    localStorage.setItem('answerType', type);
+
+    // 獲取所有選項和覆蓋層
+    const allOptions = document.querySelectorAll('.answer-option');
+    const fadeOverlay = document.querySelector('.fade-overlay');
+
+    // 淡出其他選項
+    allOptions.forEach(option => {
+        if (option !== element) {
+            option.classList.add('fade-out');
+        }
+    });
+
+    // 延遲後淡出選中的選項並顯示黑色覆蓋層
+    setTimeout(() => {
+        element.classList.add('fade-out');
+        fadeOverlay.classList.add('active');
+        
+        // 等待覆蓋層動畫完成後轉換頁面
+        setTimeout(() => {
+            window.location.href = 'page_01.html';
+        }, 2000);
+    }, 500);
+}
+    </script>
+</body>
+</html>
