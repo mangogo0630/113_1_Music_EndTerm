@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@900&display=swap">
     <title>論文寫作測驗結果</title>
+    <script src="preload-manager.js"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
         /* http://meyerweb.com/eric/tools/css/reset/ 
@@ -201,9 +202,36 @@ body {
     margin: 20px 0 0 0; /* 增加上下間距 */
     width: 100%;
 }
+
+.music-control-btn {
+    position: fixed;
+    top: 70px;
+    left: 50%;
+    transform: translateX(155px);
+    width: 60px;
+    height: 60px;
+    cursor: pointer;
+    background: url('images/聲音icon.png') no-repeat center center;
+    background-size: contain;
+    border: none;
+    z-index: 1000;
+}
+
+@media screen and (min-width: 391px) {
+    .music-control-btn {
+        transform: translateX(155px);
+    }
+}
+
     </style>
 </head>
 <body>
+    <audio id="background-music" loop>
+        <source type="audio/mpeg">
+    </audio>
+    <button onclick="goHome()" class="home-btn"></button>
+    <button id="music-control" class="music-control-btn"></button>
+
     <button onclick="goHome()" class="home-btn"></button>
 
     <div id="captureArea" class="result-container">
@@ -230,47 +258,63 @@ body {
             const results = [
                 {
                     minScore: 5,
-                    maxScore: 8,
+                    maxScore: 6,
                     type: "消極型研究生",
                     image: 'images/消極.png',
-                    music: 'images/mresult消極型.png',
+                    music: 'music/消極型.mp3',
+                    musicImage: 'images/mresult消極型.png',
                     description: "你在論文寫作過程中似乎承受著較大的壓力。建議你可以尋求指導教授或同學的協助，適當調整心態和作息，相信透過適當的調適，你一定能順利完成論文！"
                 },
                 {
-                    minScore: 9,
-                    maxScore: 11,
+                    minScore: 7,
+                    maxScore: 8,
                     type: "佛系型研究生",
                     image: 'images/佛系.png',
-                    music: 'path/to/your/music佛系型.mp3',
+                    music: 'music/佛系型.mp3',
+                    musicImage: 'images/mresult佛系型.png',
                     description: "你對論文寫作保持著平穩的步調，雖然偶有壓力但仍能保持前進。繼續保持這樣的態度，同時也要記得給自己適當的休息和獎勵。"
                 },
                 {
-                    minScore: 12,
-                    maxScore: 15,
+                    minScore: 9,
+                    maxScore: 12,
                     type: "樂觀型研究生",
                     image: 'images/樂觀.png',
-                    music: 'path/to/your/music樂觀型.mp3',
+                    music: 'music/積極型.mp3',
+                    musicImage: 'images/mresult樂觀型.png',
                     description: "你在論文寫作過程中展現出很好的心態和執行力！你善於將壓力轉化為動力，也能夠有效管理時間。維持這份熱忱，相信你的論文之路會走得很順利。"
                 }
             ];
-
+     
             function getResult(score) {
                 return results.find(result => 
                     score >= result.minScore && score <= result.maxScore
                 ) || results[0];
             }
-
+     
             const userResult = getResult(testScore);
             
+            // 設置背景音樂和控制按鈕
+            const bgMusic = document.getElementById('background-music');
+            const musicControlBtn = document.getElementById('music-control');
+            
+            if (bgMusic && musicControlBtn) {
+                // 初始化音樂狀態
+                bgMusic.src = userResult.music;
+                bgMusic.load();
+                bgMusic.volume = 0.5;
+                
+                // 設置初始圖標
+                musicControlBtn.style.backgroundImage = "url('images/靜音icon.png')";
+            }
+            
             // 設置用戶名稱
-            document.getElementById('userNameDisplay').textContent = 
-                `${userName} `;
-
+            document.getElementById('userNameDisplay').textContent = `${userName} `;
+     
             // 設置結果圖片
             const resultImage = document.getElementById('resultImage');
             resultImage.src = userResult.image;
             resultImage.alt = userResult.type;
-
+     
             // 確保圖片載入
             resultImage.onload = function() {
                 console.log('圖片載入成功');
@@ -278,13 +322,13 @@ body {
             resultImage.onerror = function() {
                 console.error('圖片載入失敗:', userResult.image);
             };
-
+     
             // 顯示結果內容
             document.querySelector('.result-content').innerHTML = `
                 <h3>你是：${userResult.type}</h3>
                 <p>${userResult.description}</p>
             `;
-
+     
             // 設置下載音樂功能
             window.downloadMusic = function() {
                 const link = document.createElement('a');
@@ -293,18 +337,18 @@ body {
                 link.click();
             };
         });
-
+     
         async function captureAndDownload() {
             const captureArea = document.getElementById('captureArea');
             const userName = localStorage.getItem('userName') || '訪客';
-
+     
             try {
                 const canvas = await html2canvas(captureArea, {
                     useCORS: true,
                     scale: 2,
                     backgroundColor: null
                 });
-
+     
                 const link = document.createElement('a');
                 link.download = `${userName}的研究生類型分析.png`;
                 link.href = canvas.toDataURL('image/png');
@@ -314,10 +358,11 @@ body {
                 alert('截圖生成失敗，請稍後再試');
             }
         }
-
+     
         function goHome() {
             window.location.href = 'index.html';
         }
-    </script>
+     </script>
+    <script src="music-controller.js"></script>
 </body>
 </html>

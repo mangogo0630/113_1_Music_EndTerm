@@ -1,11 +1,36 @@
 window.addEventListener("DOMContentLoaded", () => {
     const backgroundImage = document.querySelector(".background-image");
+    const audio = document.getElementById("background-music");
     const overlayBackgrounds = {
         m01: document.querySelector(".overlay-background-1"),
         m02: document.querySelector(".overlay-background-2"),
         m03: document.querySelector(".overlay-background-3")
     };
     let clickedButtons = new Set();
+
+    // 音樂控制初始化
+    const musicIsPlaying = localStorage.getItem('musicIsPlaying') === 'true';
+    const musicTime = localStorage.getItem('musicTime');
+    
+    if (musicTime) {
+        audio.currentTime = parseFloat(musicTime);
+    }
+    
+    if (musicIsPlaying) {
+        audio.play().catch(error => {
+            console.error("音樂播放失敗:", error);
+        });
+    }
+
+    // 定期保存音樂時間
+    setInterval(() => {
+        if (!audio.paused) {
+            localStorage.setItem('musicTime', audio.currentTime);
+            localStorage.setItem('musicIsPlaying', 'true');
+        } else {
+            localStorage.setItem('musicIsPlaying', 'false');
+        }
+    }, 1000);
     let totalButtons = 3;
 
     function updateScore(backgroundNumber) {

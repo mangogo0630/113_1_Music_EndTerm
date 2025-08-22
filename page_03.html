@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Page 03</title>
+    <script src="preload-manager.js"></script>
     <style>
         * {
             margin: 0;
@@ -91,6 +92,10 @@
     </style>
 </head>
 <body>
+    <audio id="background-music" loop>
+        <source src="music/music.mp3" type="audio/mp3">
+    </audio>
+    <button id="music-control" style="display: none;"></button>
     <div class="container" id="container">
         <div class="buttons-section">
             <button class="btn" id="happyBtn"></button>
@@ -102,77 +107,108 @@
     </div>
 
     <script>
-        // 預加載所有圖片
-        function preloadImages() {
-            const images = [
-                'images/純題目.png',
-                'images/happy_bg.jpg',
-                'images/sad_bg.jpg',
-                'images/笑臉.png',
-                'images/苦瓜臉.png',
-                'images/確定按鈕.png'
-            ];
-            
-            images.forEach(src => {
-                const img = new Image();
-                img.src = src;
-            });
+        // 預加載圖片的功能
+function preloadImages() {
+    const images = [
+        'images/純題目.png',
+        'images/happy_bg.jpg',
+        'images/sad_bg.jpg',
+        'images/笑臉.png',
+        'images/苦瓜臉.png',
+        'images/確定按鈕.png'
+    ];
+    
+    images.forEach(src => {
+        const img = new Image();
+        img.src = src;
+    });
+}
+
+// 當 DOM 載入完成後初始化
+window.addEventListener('DOMContentLoaded', () => {
+    // 音樂控制初始化
+    const audio = document.getElementById("background-music");
+    const musicIsPlaying = localStorage.getItem('musicIsPlaying') === 'true';
+    const musicTime = localStorage.getItem('musicTime');
+    
+    if (musicTime) {
+        audio.currentTime = parseFloat(musicTime);
+    }
+    
+    if (musicIsPlaying) {
+        audio.play().catch(error => {
+            console.error("音樂播放失敗:", error);
+        });
+    }
+
+    // 定期保存音樂時間
+    setInterval(() => {
+        if (!audio.paused) {
+            localStorage.setItem('musicTime', audio.currentTime);
+            localStorage.setItem('musicIsPlaying', 'true');
+        } else {
+            localStorage.setItem('musicIsPlaying', 'false');
         }
+    }, 1000);
+});
 
-        // 網頁載入時就預加載圖片
-        window.addEventListener('load', preloadImages);
+// 離開頁面前保存音樂狀態
+window.addEventListener('beforeunload', () => {
+    const audio = document.getElementById("background-music");
+    localStorage.setItem('musicTime', audio.currentTime);
+    localStorage.setItem('musicIsPlaying', !audio.paused);
+});
 
-        let selectedBackground = 'sad'; // 預設為 sad
-        const container = document.getElementById('container');
-        const happyBtn = document.getElementById('happyBtn');
-        const sadBtn = document.getElementById('sadBtn');
-        const confirmBtn = document.getElementById('confirmBtn');
+// 頁面載入時執行預加載
+window.addEventListener('load', preloadImages);
 
-        // 初始設置 sad 按鈕為 active
+// 初始化頁面元素和事件
+let selectedBackground = 'sad';
+const container = document.getElementById('container');
+const happyBtn = document.getElementById('happyBtn');
+const sadBtn = document.getElementById('sadBtn');
+const confirmBtn = document.getElementById('confirmBtn');
+
+// 設置初始狀態
+sadBtn.classList.add('active');
+
+// 按鈕事件處理
+happyBtn.addEventListener('click', () => {
+    container.style.backgroundImage = "url('images/happy_bg.jpg')";
+    selectedBackground = 'happy';
+    updateButtons('happy');
+});
+
+sadBtn.addEventListener('click', () => {
+    container.style.backgroundImage = "url('images/sad_bg.jpg')";
+    selectedBackground = 'sad';
+    updateButtons('sad');
+});
+
+function updateButtons(selected) {
+    happyBtn.classList.remove('active');
+    sadBtn.classList.remove('active');
+    if (selected === 'happy') {
+        happyBtn.classList.add('active');
+    } else {
         sadBtn.classList.add('active');
+    }
+}
 
-        happyBtn.addEventListener('click', () => {
-            container.style.backgroundImage = "url('images/happy_bg.jpg')";
-            selectedBackground = 'happy';
-            updateButtons('happy');
-        });
-
-        sadBtn.addEventListener('click', () => {
-            container.style.backgroundImage = "url('images/sad_bg.jpg')";
-            selectedBackground = 'sad';
-            updateButtons('sad');
-        });
-
-        function updateButtons(selected) {
-            happyBtn.classList.remove('active');
-            sadBtn.classList.remove('active');
-            if (selected === 'happy') {
-                happyBtn.classList.add('active');
-            } else {
-                sadBtn.classList.add('active');
-            }
-        }
-
-        confirmBtn.addEventListener('click', () => {
-            // 獲取當前總分
-            let currentScore = parseFloat(localStorage.getItem('testScore')) || 0;
-            
-            // 根據選擇增加分數
-            if (selectedBackground === 'happy') {
-                currentScore += 2; // 笑臉加 2 分
-            } else {
-                currentScore += 1; // 苦瓜臉加 1 分
-            }
-            
-            // 保存更新後的分數
-            localStorage.setItem('testScore', currentScore.toString());
-            
-            // 保存表情選擇
-            localStorage.setItem('page3Value', selectedBackground);
-            
-            // 跳轉到下一頁
-            window.location.href = 'page_04.html';
-        });
+confirmBtn.addEventListener('click', () => {
+    let currentScore = parseFloat(localStorage.getItem('testScore')) || 0;
+    
+    if (selectedBackground === 'happy') {
+        currentScore += 2;
+    } else {
+        currentScore += 1;
+    }
+    
+    localStorage.setItem('testScore', currentScore.toString());
+    localStorage.setItem('page3Value', selectedBackground);
+    
+    window.location.href = 'page_04.html';
+});
     </script>
 </body>
 </html>

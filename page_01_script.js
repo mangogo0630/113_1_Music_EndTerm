@@ -31,19 +31,37 @@ window.addEventListener("DOMContentLoaded", () => {
         wrapper.style.opacity = "1";
     }, 100);
 
+    // 檢查前一頁的音樂狀態並繼續播放
+    const musicTime = localStorage.getItem('musicTime');
+    const musicIsPlaying = localStorage.getItem('musicIsPlaying') === 'true';
+    
+    if (musicTime) {
+        audio.currentTime = parseFloat(musicTime);
+    }
+    
+    if (musicIsPlaying) {
+        audio.play().then(() => {
+            isPlaying = true;
+        }).catch(error => {
+            console.error("音樂播放失敗:", error);
+        });
+    }
+
+    // 定期保存音樂時間
+    setInterval(() => {
+        if (!audio.paused) {
+            localStorage.setItem('musicTime', audio.currentTime);
+            localStorage.setItem('musicIsPlaying', 'true');
+        } else {
+            localStorage.setItem('musicIsPlaying', 'false');
+        }
+    }, 1000);
+
     // 其他初始化
     initBackgroundEffect();
-    initAudioVolume();
     initScrollEffects();
     initClickableImage();
 });
-
-// 初始化音量設置
-function initAudioVolume() {
-    if (audio) {
-        audio.volume = 0;
-    }
-}
 
 // 檢查圖片尺寸
 function checkImageSizes() {
@@ -77,33 +95,6 @@ function initBackgroundEffect() {
     }
 }
 
-// 音樂播放器初始化
-function initMusicPlayer() {
-    if (audio) {
-        setTimeout(() => {
-            audio.volume = 0;
-            audio.play()
-                .then(() => {
-                    fadeInAudio();
-                })
-                .catch(error => {
-                    console.error("音樂播放失敗:", error);
-                });
-        }, 2000);
-    }
-}
-
-// 音量淡入效果
-function fadeInAudio() {
-    const fadeInInterval = setInterval(() => {
-        if (audio.volume < 1) {
-            audio.volume = Math.min(audio.volume + 0.1, 1);
-        } else {
-            clearInterval(fadeInInterval);
-        }
-    }, 200);
-}
-
 // 初始化滾動效果
 function initScrollEffects() {
     // 創建時間軸但先不啟用
@@ -114,7 +105,7 @@ function initScrollEffects() {
             end: "+=100%",
             pin: true,
             scrub: true,
-            preventScroll: true  // 預防滾動
+            preventScroll: true
         }
     });
 
@@ -263,11 +254,7 @@ function handleButtonClick(button) {
     
     // 從 localStorage 獲取當前總分，如果沒有就設為0
     let currentTotal = parseInt(localStorage.getItem('testScore')) || 0;
-    
-    // 加上新的分數
     currentTotal += score;
-
-    // 儲存更新後的總分到 localStorage
     localStorage.setItem('testScore', currentTotal);
 
     // 先讓其他按鈕慢慢消失
@@ -285,11 +272,9 @@ function handleButtonClick(button) {
     
     // 延遲後再讓被點擊的按鈕和背景消失
     setTimeout(() => {
-        // 背景變暗效果
         const heroSection = document.querySelector(".section.hero");
         heroSection.classList.add("dark");
         
-        // 被點擊的按鈕消失
         gsap.to(button, {
             scale: 0.8,
             opacity: 0,
@@ -297,14 +282,14 @@ function handleButtonClick(button) {
             ease: "power2.out",
             onComplete: () => {
                 setTimeout(() => {
-                    // 改為跳轉到下一頁，而不是直接去結果頁
+                    // 保存音樂狀態後跳轉
+                    localStorage.setItem('musicTime', audio.currentTime);
+                    localStorage.setItem('musicIsPlaying', !audio.paused);
                     window.location.href = "page_02.html";
                 }, 1500);
             }
         });
         
-        
-        // 背景鏡子淡出
         gsap.to(".foreground-image", {
             opacity: 0,
             duration: 1,
@@ -313,28 +298,11 @@ function handleButtonClick(button) {
     }, 500);
 }
 
-// 音樂控制
-if (musicControlButton) {
-    musicControlButton.addEventListener('click', () => {
-        if (isPlaying) {
-            audio.pause();
-            musicControlButton.textContent = '播放音樂';
-            musicControlButton.classList.remove('playing');
-        } else {
-            audio.play()
-                .then(() => {
-                    fadeInAudio();
-                    musicControlButton.textContent = '暫停音樂';
-                    musicControlButton.classList.add('playing');
-                })
-                .catch(error => {
-                    console.error("音樂播放失敗:", error);
-                    isPlaying = false;
-                });
-        }
-        isPlaying = !isPlaying;
-    });
-}
+// 離開頁面前保存音樂狀態
+window.addEventListener('beforeunload', () => {
+    localStorage.setItem('musicTime', audio.currentTime);
+    localStorage.setItem('musicIsPlaying', !audio.paused);
+});
 
 // 圖片尺寸調整
 window.addEventListener('load', () => {

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image Overlap Animation</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="wrapper">
+    <div class="content">
+      <section class="section hero"></section>
+    </div>
+    <div class="image-container">
+      <img src="images/Door.png" 
+           alt="foreground" class="foreground-image">
+    </div>
+     <audio id="background-music" src="music/music.mp3"></audio>
+     <div class="button-container">
+      <button id="floating-button" class="floating-button" onclick="window.location.href='eye.html'"></button>
+
+    </div>
+
+      <!-- 新增第二個區塊，作為新的背景圖區域 -->
+  <section class="section new-background"></section>
+</body>
+   
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+  
+  <script src="script.js"></script>
+
+</body>

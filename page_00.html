@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@900&display=swap">
     <title>論文寫作測驗</title>
+    <script src="preload-manager.js"></script>
     <style>
         * {
             margin: 0;
@@ -30,21 +31,32 @@
         }
 
         .main-container {
-            width: min(100vh, 100vw);
-            height: min(100vh, 100vw);
+            width: 100%;
+            height: 100vh;
             position: relative;
             overflow: hidden;
             opacity: 0;
             transition: opacity 1s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .main-container.fade-in {
             opacity: 1;
         }
 
+        .background-container {
+            height: 100vh;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
         .background-image {
-            width: 100%;
-            height: 100%;
+            height: 100vh;
+            width: auto;
             object-fit: contain;
             position: absolute;
             top: 50%;
@@ -62,7 +74,6 @@
             z-index: 1;
         }
 
-        /* 新增淡出覆蓋層樣式 */
         .fade-overlay {
             position: fixed;
             top: 0;
@@ -82,23 +93,15 @@
             visibility: visible;
         }
 
-        .question-content {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
+        .content-container {
+            width: 40%;
+            position: relative;
             z-index: 2;
         }
 
         .question-wrapper {
+            width: 100%;
             position: relative;
-            display: inline-block;
             opacity: 1;
             transition: opacity 1s ease;
         }
@@ -107,51 +110,67 @@
             opacity: 0;
         }
 
+        .question-image-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;  /* 新增 */
+        }
+
+        .question-image-container img {
+    width: 100%;          /* 圖片填滿容器 */
+    height: auto;
+    display: block;
+}
+
+        
+
         .question-wrapper img {
-            max-width: 50%;
-            margin: auto;
+            width: 100%;
             height: auto;
             display: block;
         }
 
         .next-button {
             position: absolute;
-            right: -50px;
-            left: 35%;
-            top: 35%;
-            width: auto;
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 0;
-            transform: translate(0, 0);
-            transition: opacity 1s ease;
+    width: 50%;         /* 改為百分比 */
+    right: -20%;        /* 調整右側位置 */
+    bottom: -20%;       /* 調整底部位置 */
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    z-index: 3;
+    transition: opacity 1s ease;
         }
 
         .next-button img {
-            display: block;
-            width: auto;
+            width: 100%;
             height: auto;
+            display: block;
         }
 
         .answers-container {
-            position: absolute;
-            display: flex;
+            width: 100%;
+            display: none;
             flex-direction: column;
             align-items: center;
-            gap: 10px;
-            width: 100%;
+            gap: 20px;
             opacity: 0;
             visibility: hidden;
             transition: opacity 1s ease, visibility 1s ease;
         }
 
         .answers-container.fade-in {
+            display: flex;        /* 顯示時改為 flex */
             opacity: 1;
             visibility: visible;
         }
 
         .answer-option {
+            width: 100%;
+            min-width: 150px;
             cursor: pointer;
             transition: transform 0.3s ease, opacity 1s ease;
         }
@@ -166,7 +185,7 @@
         }
 
         .answer-option img {
-            max-width: 50%;
+            width: 100%;
             height: auto;
             display: block;
             margin: 0 auto;
@@ -174,60 +193,110 @@
     </style>
 </head>
 <body>
-    <!-- 新增淡出覆蓋層 -->
-    <div class="fade-overlay"></div>
+    <body>
+        <audio id="background-music" loop>
+            <source src="music/01.mp3" type="audio/mp3">
+        </audio>
+        <button id="music-control" style="display: none;"></button>
+        
+        <div class="fade-overlay"></div>
 
     <div class="main-container">
-        <img src="images/鏡子-底圖.jpg" alt="背景" class="background-image">
-        <div class="overlay"></div>
-        <div class="question-content">
-            <div class="question-wrapper">
-                <img src="images/問題1.png" alt="問題1" class="question-image">
-                <button class="next-button" onclick="showAnswers()">
-                    <img src="images/next.png" alt="下一步">
-                </button>
-            </div>
-            <div class="answers-container">
-                <div class="answer-option" onclick="selectAnswer('optimistic', this)">
-                    <img src="images/回答1.png" alt="回答1">
+        <div class="background-container">
+            <img src="images/鏡子-底圖.jpg" alt="背景" class="background-image">
+            <div class="overlay"></div>
+            <div class="content-container">
+                <div class="question-wrapper">
+                    <div class="question-image-container">
+                        <img src="images/問題1.png" alt="問題1" class="question-image">
+                    </div>
+                    <button class="next-button" onclick="showAnswers()">
+                        <img src="images/next.png" alt="下一步">
+                    </button>
                 </div>
-                <div class="answer-option" onclick="selectAnswer('zen', this)">
-                    <img src="images/回答2.png" alt="回答2">
-                </div>
-                <div class="answer-option" onclick="selectAnswer('pessimistic', this)">
-                    <img src="images/回答3.png" alt="回答3">
+                <div class="answers-container">
+                    <div class="answer-option" onclick="selectAnswer('optimistic', this)">
+                        <img src="images/回答1.png" alt="回答1">
+                    </div>
+                    <div class="answer-option" onclick="selectAnswer('zen', this)">
+                        <img src="images/回答2.png" alt="回答2">
+                    </div>
+                    <div class="answer-option" onclick="selectAnswer('pessimistic', this)">
+                        <img src="images/回答3.png" alt="回答3">
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-    // 重置所有測驗相關的數據
+    // 頁面載入時的初始化
+document.addEventListener('DOMContentLoaded', function() {
+    // 測驗相關初始化
     localStorage.setItem('testScore', '0');
     localStorage.removeItem('answerType');
     
-    // 原有的淡入效果
+    // 頁面淡入效果
     setTimeout(() => {
         const mainContainer = document.querySelector('.main-container');
         mainContainer.classList.add('fade-in');
     }, 100);
+
+    // 音樂相關初始化
+    const audio = document.getElementById("background-music");
+    const musicControlButton = document.getElementById('music-control');
+    let isPlaying = false;
+
+    // 檢查前一頁的音樂狀態
+    const musicTime = localStorage.getItem('musicTime');
+    const musicIsPlaying = localStorage.getItem('musicIsPlaying') === 'true';
+    
+    if (musicTime) {
+        audio.currentTime = parseFloat(musicTime);
+    }
+    
+    if (musicIsPlaying) {
+        audio.play().then(() => {
+            isPlaying = true;
+        }).catch(error => {
+            console.error("音樂播放失敗:", error);
+        });
+    }
+
+    // 定期保存音樂時間
+    setInterval(() => {
+        if (!audio.paused) {
+            localStorage.setItem('musicTime', audio.currentTime);
+        }
+    }, 1000);
+
+    // 頁面離開前保存音樂狀態
+    window.addEventListener('beforeunload', () => {
+        localStorage.setItem('musicTime', audio.currentTime);
+        localStorage.setItem('musicIsPlaying', !audio.paused);
+    });
 });
 
-        function showAnswers() {
-            const questionWrapper = document.querySelector('.question-wrapper');
-            const answersContainer = document.querySelector('.answers-container');
+// 顯示答案選項的功能
+function showAnswers() {
+    const questionWrapper = document.querySelector('.question-wrapper');
+    const answersContainer = document.querySelector('.answers-container');
 
-            questionWrapper.classList.add('fade-out');
+    questionWrapper.classList.add('fade-out');
 
-            setTimeout(() => {
-                questionWrapper.style.display = 'none';
-                answersContainer.classList.add('fade-in');
-            }, 1000);
-        }
+    setTimeout(() => {
+        questionWrapper.style.display = 'none';
+        answersContainer.style.display = 'flex';
+        
+        setTimeout(() => {
+            answersContainer.classList.add('fade-in');
+        }, 50);
+    }, 1000);
+}
 
-        function selectAnswer(type, element) {
-    // 設置第一題的分數
+// 選擇答案的功能
+function selectAnswer(type, element) {
+    // 計算分數
     let score;
     switch(type) {
         case 'optimistic':
@@ -241,27 +310,25 @@
             break;
     }
     
-    // 初始化總分
+    // 儲存答案和分數
     localStorage.setItem('testScore', score);
     localStorage.setItem('answerType', type);
 
-    // 獲取所有選項和覆蓋層
+    // 淡出動畫效果
     const allOptions = document.querySelectorAll('.answer-option');
     const fadeOverlay = document.querySelector('.fade-overlay');
 
-    // 淡出其他選項
     allOptions.forEach(option => {
         if (option !== element) {
             option.classList.add('fade-out');
         }
     });
 
-    // 延遲後淡出選中的選項並顯示黑色覆蓋層
+    // 延遲切換頁面
     setTimeout(() => {
         element.classList.add('fade-out');
         fadeOverlay.classList.add('active');
         
-        // 等待覆蓋層動畫完成後轉換頁面
         setTimeout(() => {
             window.location.href = 'page_01.html';
         }, 2000);
